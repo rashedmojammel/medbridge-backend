@@ -1,6 +1,7 @@
-# RHCP — Team Git Workflow (4 Members)
+# MedBridge — Team Git Workflow (4 Members)
 
-Project: Rural Healthcare Consultation Platform · NestJS + Next.js + PostgreSQL
+Project: MedBridge Backend · NestJS + Next.js + PostgreSQL
+Repo: https://github.com/rashedmojammel/medbridge-backend.git
 Rule of thumb: **pull → branch → code → push → PR**. If you remember that, you know the whole workflow.
 
 ---
@@ -14,17 +15,19 @@ Rule of thumb: **pull → branch → code → push → PR**. If you remember tha
 | Member 3 | consultations (chat gateway), prescriptions | doctor pages, chat UI | `feature/consult-*`, `feature/rx-*` |
 | Member 4 | medicines, appointments, notifications | pharmacist pages, appointments, notification panel | `feature/medicines-*`, `feature/appt-*`, `feature/notify-*` |
 
+> Update the module split above to match MedBridge's actual domains once you've settled on them — the rest of this doc doesn't depend on the exact names.
+
 You mostly work inside YOUR folders. Shared files (`app.module.ts`, `package.json`, entities other people relate to) — announce in the group chat before touching.
 
 ---
 
 ## 2. One-Time Setup
 
-### Repo owner (Member 1) does once:
+### Repo owner (Rashed) does once:
 ```bash
-# create repo on GitHub: rhcp-project (private, add 3 teammates as collaborators)
-git clone https://github.com/<team>/rhcp-project.git
-cd rhcp-project
+# repo already created: medbridge-backend (add teammates as collaborators)
+git clone https://github.com/rashedmojammel/medbridge-backend.git
+cd medbridge-backend
 # push scaffold: backend + frontend folders, .gitignore, .env.example, ARCHITECTURE.md
 git add .
 git commit -m "chore: initial project scaffold"
@@ -41,8 +44,8 @@ Then on GitHub → **Settings → Branches → Add branch protection rule**:
 
 ### Everyone does once:
 ```bash
-git clone https://github.com/<team>/rhcp-project.git
-cd rhcp-project
+git clone https://github.com/rashedmojammel/medbridge-backend.git
+cd medbridge-backend
 git checkout dev
 cp .env.example .env        # fill in your local DB password
 npm install                 # in backend/ and frontend/
@@ -151,7 +154,7 @@ Format: `type(module): short description` — present tense, lowercase.
 Only at agreed checkpoints (end of week / before demo / before report deadline):
 
 1. Whole team confirms `dev` runs: backend boots, seed works, frontend builds.
-2. Member 1 opens PR `dev → main`, title: `release: milestone 2 — patient + triage flow complete`.
+2. Rashed opens PR `dev → main`, title: `release: milestone 2 — patient + triage flow complete`.
 3. Quick team review, merge.
 4. Tag it: `git tag v0.2 && git push origin v0.2` — tags give you safe rollback points and look professional in the repo history.
 
