@@ -52,131 +52,140 @@ Every REST request passes through the same pipeline:
 ## 3. Module-by-Module Specification
 
 ### 3.1 AuthModule
+
 **Purpose:** login, patient self-registration, token issuing.
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | /auth/register | Public | Patient self-registration (creates user + patient row) |
-| POST | /auth/login | Public | Returns `{ accessToken, user }` |
-| GET | /auth/me | Any logged-in | Current user profile from token |
+| Method | Endpoint       | Access        | Description                                            |
+| ------ | -------------- | ------------- | ------------------------------------------------------ |
+| POST   | /auth/register | Public        | Patient self-registration (creates user + patient row) |
+| POST   | /auth/login    | Public        | Returns `{ accessToken, user }`                        |
+| GET    | /auth/me       | Any logged-in | Current user profile from token                        |
 
 **Design:** passwords hashed with bcrypt (10 salt rounds). JWT payload: `{ sub: userId, role, name }`, expiry 1 day. Staff/Doctor/CHW/Pharmacist accounts are created only by Admin through UsersModule — they cannot self-register.
 
 ### 3.2 UsersModule
+
 **Purpose:** user CRUD (admin), role-specific profiles, public directory.
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | /public/doctors | Public | Directory list (only `is_public = true`) |
-| GET | /public/doctors/:id | Public | Doctor profile |
-| GET | /public/chws, /public/staff | Public | CHW / staff directories |
-| GET | /users | Admin | All users with filters (role, status) |
-| POST | /users | Admin | Create Doctor/CHW/Pharmacist/Staff account |
-| PATCH | /users/:id | Admin | Edit user, toggle `is_public`, activate/deactivate |
+| Method | Endpoint                    | Access | Description                                        |
+| ------ | --------------------------- | ------ | -------------------------------------------------- |
+| GET    | /public/doctors             | Public | Directory list (only `is_public = true`)           |
+| GET    | /public/doctors/:id         | Public | Doctor profile                                     |
+| GET    | /public/chws, /public/staff | Public | CHW / staff directories                            |
+| GET    | /users                      | Admin  | All users with filters (role, status)              |
+| POST   | /users                      | Admin  | Create Doctor/CHW/Pharmacist/Staff account         |
+| PATCH  | /users/:id                  | Admin  | Edit user, toggle `is_public`, activate/deactivate |
 
 **Design:** public endpoints return a whitelisted DTO — never password hashes, emails, or salaries. `is_public` flag controls directory visibility per user.
 
 ### 3.3 PatientsModule
+
 **Purpose:** patient records, MRN generation.
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | /patients | CHW | Register patient (auto-generates MRN) |
-| GET | /patients | CHW, Doctor, Admin | List/search (CHW sees own area's patients) |
-| GET | /patients/:id | CHW, Doctor, Admin, Owner | Full record incl. history |
-| PATCH | /patients/:id | CHW, Admin | Update demographics |
+| Method | Endpoint      | Access                    | Description                                |
+| ------ | ------------- | ------------------------- | ------------------------------------------ |
+| POST   | /patients     | CHW                       | Register patient (auto-generates MRN)      |
+| GET    | /patients     | CHW, Doctor, Admin        | List/search (CHW sees own area's patients) |
+| GET    | /patients/:id | CHW, Doctor, Admin, Owner | Full record incl. history                  |
+| PATCH  | /patients/:id | CHW, Admin                | Update demographics                        |
 
 **MRN format:** `P-YYYY-NNNNNN` (year + zero-padded sequence), generated in the service inside a transaction to prevent duplicates.
 
 ### 3.4 TriageModule
+
 **Purpose:** vitals, symptom reports, criticality classification.
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | /triage/vitals | CHW | Record temperature, BP, pulse, SpO2, RR, blood sugar |
-| POST | /triage/symptoms | CHW | Symptom checklist + severity + triage classification |
-| GET | /triage/patient/:id | Doctor, CHW, Admin | Triage history for a patient |
+| Method | Endpoint            | Access             | Description                                          |
+| ------ | ------------------- | ------------------ | ---------------------------------------------------- |
+| POST   | /triage/vitals      | CHW                | Record temperature, BP, pulse, SpO2, RR, blood sugar |
+| POST   | /triage/symptoms    | CHW                | Symptom checklist + severity + triage classification |
+| GET    | /triage/patient/:id | Doctor, CHW, Admin | Triage history for a patient                         |
 
 **Critical-flag flow:** if classification = CRITICAL, the service calls `notificationsService.createEmergencyAlert()` which notifies the assigned doctor and all admins — in the same transaction as the triage save.
 
 **Rule-based suggestion (recommended addition):** the service computes a suggested classification from vitals (e.g. SpO2 < 92, systolic > 160 or < 90, temp > 39.5, pulse > 120 → suggest CRITICAL) and returns it with the response. The CHW makes the final decision; the suggestion is stored alongside for audit.
 
 ### 3.5 ConsultationsModule (chat-based)
+
 **Purpose:** consultation lifecycle + real-time chat.
 
 REST endpoints:
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | /consultations | CHW | Schedule consultation (patient, doctor, datetime, reason) |
-| GET | /consultations | Doctor, CHW, Patient | Own consultations, filterable by status |
-| GET | /consultations/:id | Participants + Admin | Details + full chat transcript |
-| PATCH | /consultations/:id/diagnosis | Doctor | Save diagnosis + notes |
-| PATCH | /consultations/:id/complete | Doctor | End consultation, lock the chat |
+| Method | Endpoint                     | Access               | Description                                               |
+| ------ | ---------------------------- | -------------------- | --------------------------------------------------------- |
+| POST   | /consultations               | CHW                  | Schedule consultation (patient, doctor, datetime, reason) |
+| GET    | /consultations               | Doctor, CHW, Patient | Own consultations, filterable by status                   |
+| GET    | /consultations/:id           | Participants + Admin | Details + full chat transcript                            |
+| PATCH  | /consultations/:id/diagnosis | Doctor               | Save diagnosis + notes                                    |
+| PATCH  | /consultations/:id/complete  | Doctor               | End consultation, lock the chat                           |
 
 **Chat Gateway (Socket.IO, namespace `/chat`):**
 
-| Event (client → server) | Payload | Behavior |
-|---|---|---|
-| joinRoom | { consultationId } | Verifies JWT + participant, joins room `consult:{id}` |
-| sendMessage | { consultationId, text } | Persists ChatMessage, broadcasts `newMessage` to room |
-| typing | { consultationId } | Broadcasts typing indicator (not persisted) |
+| Event (client → server) | Payload                  | Behavior                                              |
+| ----------------------- | ------------------------ | ----------------------------------------------------- |
+| joinRoom                | { consultationId }       | Verifies JWT + participant, joins room `consult:{id}` |
+| sendMessage             | { consultationId, text } | Persists ChatMessage, broadcasts `newMessage` to room |
+| typing                  | { consultationId }       | Broadcasts typing indicator (not persisted)           |
 
-| Event (server → client) | Purpose |
-|---|---|
-| newMessage | Deliver message to both participants |
-| userJoined / userLeft | Presence indicator |
-| consultationEnded | Doctor completed the session; client disables input |
+| Event (server → client) | Purpose                                             |
+| ----------------------- | --------------------------------------------------- |
+| newMessage              | Deliver message to both participants                |
+| userJoined / userLeft   | Presence indicator                                  |
+| consultationEnded       | Doctor completed the session; client disables input |
 
 **Design decisions:** the socket handshake carries the JWT (`auth: { token }`) and is verified in the gateway before any room join. Messages are persisted first, then broadcast — the transcript in PostgreSQL is the clinical record. Once a consultation is COMPLETED, `sendMessage` is rejected.
 
 ### 3.6 PrescriptionsModule
+
 **Purpose:** digital prescriptions + treatment plans.
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | /prescriptions | Doctor | Create prescription with line items |
-| GET | /prescriptions | Doctor, Patient | Own prescriptions |
-| GET | /prescriptions/:id | Prescriber, Patient, Admin | Full detail |
-| PATCH | /prescriptions/:id/cancel | Doctor (issuer) | Cancel (never edit/delete) |
-| POST | /treatment-plans | Doctor | Plan with start/end dates |
-| GET | /treatment-plans/patient/:id | Doctor, Patient | Active + past plans |
+| Method | Endpoint                     | Access                     | Description                         |
+| ------ | ---------------------------- | -------------------------- | ----------------------------------- |
+| POST   | /prescriptions               | Doctor                     | Create prescription with line items |
+| GET    | /prescriptions               | Doctor, Patient            | Own prescriptions                   |
+| GET    | /prescriptions/:id           | Prescriber, Patient, Admin | Full detail                         |
+| PATCH  | /prescriptions/:id/cancel    | Doctor (issuer)            | Cancel (never edit/delete)          |
+| POST   | /treatment-plans             | Doctor                     | Plan with start/end dates           |
+| GET    | /treatment-plans/patient/:id | Doctor, Patient            | Active + past plans                 |
 
 **Immutability rule:** a sent prescription is never edited or deleted — only cancelled and reissued. This gives the medical record a trustworthy audit trail. On create, the service notifies the patient via NotificationsModule.
 
 ### 3.7 MedicinesModule
+
 **Purpose:** catalog, inventory, alternatives, search.
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | /medicines/search?q= | Any logged-in | Search brand OR generic name (ILIKE) |
-| GET | /medicines/:id/alternatives | Any logged-in | Interchangeable medicines + availability |
-| POST | /medicines | Admin, Pharmacist | Add to catalog |
-| PATCH | /medicines/:id | Admin, Pharmacist | Edit / toggle availability |
-| PATCH | /medicines/:id/stock | Pharmacist | Add / reduce / set stock with reason |
-| GET | /medicines/low-stock | Pharmacist, Admin | Items below threshold |
+| Method | Endpoint                    | Access            | Description                              |
+| ------ | --------------------------- | ----------------- | ---------------------------------------- |
+| GET    | /medicines/search?q=        | Any logged-in     | Search brand OR generic name (ILIKE)     |
+| GET    | /medicines/:id/alternatives | Any logged-in     | Interchangeable medicines + availability |
+| POST   | /medicines                  | Admin, Pharmacist | Add to catalog                           |
+| PATCH  | /medicines/:id              | Admin, Pharmacist | Edit / toggle availability               |
+| PATCH  | /medicines/:id/stock        | Pharmacist        | Add / reduce / set stock with reason     |
+| GET    | /medicines/low-stock        | Pharmacist, Admin | Items below threshold                    |
 
 **Low-stock flow:** every stock update compares quantity vs threshold; crossing below it triggers a notification to pharmacists and admins. Alternatives are stored as symmetric pairs in `medicine_alternatives`.
 
 ### 3.8 AppointmentsModule
+
 **Purpose:** follow-up scheduling and reminders.
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| POST | /appointments | Doctor, CHW | Schedule follow-up |
-| GET | /appointments | Doctor, Patient, CHW | Own appointments (upcoming/past) |
-| PATCH | /appointments/:id | Doctor, CHW, Patient | Reschedule / cancel with reason |
+| Method | Endpoint          | Access               | Description                      |
+| ------ | ----------------- | -------------------- | -------------------------------- |
+| POST   | /appointments     | Doctor, CHW          | Schedule follow-up               |
+| GET    | /appointments     | Doctor, Patient, CHW | Own appointments (upcoming/past) |
+| PATCH  | /appointments/:id | Doctor, CHW, Patient | Reschedule / cancel with reason  |
 
 **Reminders:** a daily cron job (`@nestjs/schedule`) finds appointments in the next 24h and creates reminder notifications.
 
 ### 3.9 NotificationsModule
+
 **Purpose:** shared alerting infrastructure — called by triage (critical alerts), prescriptions (Rx ready), medicines (low stock), appointments (reminders), consultations (assignment).
 
-| Method | Endpoint | Access | Description |
-|---|---|---|---|
-| GET | /notifications | Any logged-in | Own notifications + unread count |
-| PATCH | /notifications/:id/read | Owner | Mark read |
-| PATCH | /notifications/read-all | Owner | Mark all read |
+| Method | Endpoint                | Access        | Description                      |
+| ------ | ----------------------- | ------------- | -------------------------------- |
+| GET    | /notifications          | Any logged-in | Own notifications + unread count |
+| PATCH  | /notifications/:id/read | Owner         | Mark read                        |
+| PATCH  | /notifications/read-all | Owner         | Mark all read                    |
 
 **Design:** exposes a simple `create(userId, type, title, body, refId)` service method; other modules inject NotificationsService and never write to the table directly. Types: EMERGENCY_ALERT, PRESCRIPTION_READY, APPOINTMENT_REMINDER, LOW_STOCK, ASSIGNMENT.
 
@@ -203,6 +212,7 @@ users 1──* notifications
 ```
 
 Key columns worth noting:
+
 - **users**: id, role_id (FK), full_name, email (unique), phone, password_hash, is_public, is_active, timestamps
 - **patients**: id, user_id (FK, nullable for offline patients), mrn (unique), dob, gender, blood_group, address, emergency_contact_name/phone, allergies, chronic_conditions, registered_by_chw_id
 - **consultations**: id, patient_id, doctor_id, scheduled_by_chw_id, scheduled_at, status (SCHEDULED / IN_PROGRESS / COMPLETED / CANCELLED), diagnosis, doctor_notes
@@ -323,9 +333,9 @@ Deliberately deferred (documented as future work): refresh tokens and token revo
 
 ## 11. Team Ownership Map
 
-| Member | Modules |
-|---|---|
-| 1 | auth, users, common/, config, seed script |
-| 2 | patients, triage |
-| 3 | consultations (incl. chat gateway), prescriptions |
-| 4 | medicines, appointments, notifications |
+| Member | Modules                                           |
+| ------ | ------------------------------------------------- |
+| 1      | auth, users, common/, config, seed script         |
+| 2      | patients, triage                                  |
+| 3      | consultations (incl. chat gateway), prescriptions |
+| 4      | medicines, appointments, notifications            |

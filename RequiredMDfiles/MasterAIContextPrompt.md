@@ -59,21 +59,25 @@ Modules: auth, users (+doctors/health-workers/staff OneToOne profile entities + 
 ## MEMBER ADD-ONS (paste your one AFTER the master prompt)
 
 **Member 1 (Auth, Users, foundation):**
+
 ```
 I am Member 1. I own: auth/ and users/ modules, app.module.ts wiring, .env config, seed script, and on the frontend: public pages, login/register, admin user management, and lib/api.ts (shared axios client). My routes: /auth/*, /users/*, /users/public/*.
 ```
 
 **Member 2 (Patients, Triage — CHW flow):**
+
 ```
 I am Member 2. I own: patients/ and triage/ modules, and on the frontend: all CHW pages (dashboard, register patient, patient list, vitals & triage form). My routes: /patients/*, /triage/*. I depend on Member 1's guards and Member 4's NotificationsService (I inject it for CRITICAL alerts).
 ```
 
 **Member 3 (Consultations + Chat, Prescriptions — Doctor flow):**
+
 ```
 I am Member 3. I own: consultations/ (including chat.gateway.ts — Socket.IO) and prescriptions/ modules, and on the frontend: doctor pages (dashboard, patient record view, chat consultation UI with diagnosis panel, write prescription, treatment plan). My routes: /consultations/*, /prescriptions/*, /treatment-plans/*, WS namespace /chat. I inject NotificationsService for ASSIGNMENT and PRESCRIPTION_READY.
 ```
 
 **Member 4 (Medicines, Appointments, Notifications — Pharmacist flow):**
+
 ```
 I am Member 4. I own: medicines/, appointments/, notifications/ modules, and on the frontend: pharmacist pages (dashboard, inventory, add medicine), patient medicine search & alternatives, appointments pages, and the shared notification panel. My routes: /medicines/*, /appointments/*, /notifications/*. My NotificationsService is injected by Members 2 and 3, so its create() signature must stay stable: create(userId, type, title, body, refId?).
 ```
@@ -96,4 +100,7 @@ I am Member 4. I own: medicines/, appointments/, notifications/ modules, and on 
 4. You are the reviewer. AI output is a draft — read it, run it, and check it against the conventions before committing. You must be able to explain every line in the viva/demo, because instructors ask "why did you write this?"
 5. When AI suggests changing the stack or structure ("consider using Prisma / microservices / MongoDB") — say no and point it back to the context. Consistency across 4 members matters more than any single suggestion.
 6. Commit messages, PR descriptions, and report sections are also fair game — paste the context and ask.
+
+```
+
 ```

@@ -147,10 +147,11 @@ rhcp-backend/
 **auth.module.ts** — imports `UsersModule` and `JwtModule.registerAsync` (secret + expiry from env). Provides `AuthService`, `JwtStrategy`. Exports nothing (guards are imported directly by path, tutorial-style).
 
 **auth.controller.ts** — routes:
+
 - `POST /auth/register` (public) → patient self-registration
 - `POST /auth/login` (public) → `{ access_token, user }`
 - `GET /auth/me` (JwtGuard) → decoded current user
-Note: staff/doctor accounts are NOT created here — that is admin-only in users module (fixes the tutorial's chicken-and-egg + backdoor).
+  Note: staff/doctor accounts are NOT created here — that is admin-only in users module (fixes the tutorial's chicken-and-egg + backdoor).
 
 **auth.service.ts** — `registerPatient()` (hash with bcrypt 10 rounds, create user with role PATIENT + patient row), `login()` (find by EMAIL — not userId like tutorial — compare hash, sign payload `{ sub, email, role, name }`).
 
@@ -179,6 +180,7 @@ Note: staff/doctor accounts are NOT created here — that is admin-only in users
 **staff.entity.ts** — id, user (OneToOne + JoinColumn), department, designation.
 
 **users.controller.ts** — routes:
+
 - `GET /users/public/doctors`, `/public/doctors/:id`, `/public/chws`, `/public/staff` — no guard; service filters `isPublic: true` and returns whitelisted fields only
 - `GET /users` (JwtGuard + Roles ADMIN) — list with role/status filters
 - `POST /users` (ADMIN) — create Doctor/CHW/Pharmacist/Staff with role-specific profile row
@@ -206,6 +208,7 @@ Note: staff/doctor accounts are NOT created here — that is admin-only in users
 **symptom-reports.entity.ts** — id, patient (ManyToOne), `@OneToOne` vitalSign (nullable), primaryComplaint, symptoms (simple-array), duration, severity, triageStatus (enum CRITICAL/NON_CRITICAL), suggestedStatus (enum — from rules), notes, recordedBy, recordedAt.
 
 **triage.service.ts** —
+
 - `recordVitals()` — save + return with computed warnings (e.g. temp > 37.5 flag)
 - `suggestTriage(vitals)` — pure rule function: SpO2 < 92 OR systolic > 160 OR systolic < 90 OR temp > 39.5 OR pulse > 120 → CRITICAL
 - `submitSymptomReport()` — in one transaction: save report; if triageStatus === CRITICAL → `notificationsService.create()` for assigned doctor + all admins (EMERGENCY_ALERT)
@@ -223,6 +226,7 @@ Note: staff/doctor accounts are NOT created here — that is admin-only in users
 **consultations.service.ts** — lifecycle logic + `assertParticipant(userId, consultationId)` used by both controller and gateway; rejects messages when status === COMPLETED.
 
 **chat.gateway.ts** — `@WebSocketGateway({ namespace: '/chat', cors })`.
+
 - `handleConnection(socket)` — verify JWT from `socket.handshake.auth.token`; disconnect if invalid
 - `@SubscribeMessage('joinRoom')` — assertParticipant → `socket.join('consult:'+id)` → broadcast userJoined
 - `@SubscribeMessage('sendMessage')` — validate via SendMessageDto → persist ChatMessage → `server.to(room).emit('newMessage', saved)`
@@ -283,13 +287,13 @@ Standalone script (`npm run seed` → `ts-node src/seeds/seed.ts`): creates 1 ad
 
 ## Root Files
 
-| File | Content |
-|---|---|
-| .env | DATABASE_HOST/PORT/NAME/USER/PASSWORD, JWT_SECRET, JWT_EXPIRES_IN=1d, PORT=3001, CORS_ORIGIN=http://localhost:3000 |
-| .env.example | same keys, dummy values — committed so teammates know what to configure |
-| .gitignore | node_modules/, dist/, .env, uploads/* |
-| uploads/ | Multer diskStorage target for profile photos; filename pattern `${Date.now()}_${original}` (as in tutorial) |
-| package.json scripts | start:dev, build, seed, test |
+| File                 | Content                                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| .env                 | DATABASE_HOST/PORT/NAME/USER/PASSWORD, JWT_SECRET, JWT_EXPIRES_IN=1d, PORT=3001, CORS_ORIGIN=http://localhost:3000 |
+| .env.example         | same keys, dummy values — committed so teammates know what to configure                                            |
+| .gitignore           | node_modules/, dist/, .env, uploads/*                                                                              |
+| uploads/             | Multer diskStorage target for profile photos; filename pattern `${Date.now()}_${original}` (as in tutorial)        |
+| package.json scripts | start:dev, build, seed, test                                                                                       |
 
 ## Conventions (team agreement)
 
@@ -303,12 +307,12 @@ Standalone script (`npm run seed` → `ts-node src/seeds/seed.ts`): creates 1 ad
 
 ## Known deltas from the tutorial (intentional fixes)
 
-| Tutorial | RHCP | Why |
-|---|---|---|
-| DB creds + 'meow-meow' secret in code | ConfigModule + .env | security, gradeable |
-| Login by userId | Login by email | matches wireframe 2.1, sane UX |
-| role: string default 'user' | UserRole enum | typo-proof authorization |
-| Entity returns password hash | @Exclude + ClassSerializerInterceptor | no credential leaks |
-| Guarded register + open create-user backdoor | public patient register, ADMIN-only staff create, seeded first admin | consistent access model |
-| roles.decrator.ts | roles.decorator.ts | spelling |
-| Stray aws-sdk auto-imports | none | dead code |
+| Tutorial                                     | RHCP                                                                 | Why                            |
+| -------------------------------------------- | -------------------------------------------------------------------- | ------------------------------ |
+| DB creds + 'meow-meow' secret in code        | ConfigModule + .env                                                  | security, gradeable            |
+| Login by userId                              | Login by email                                                       | matches wireframe 2.1, sane UX |
+| role: string default 'user'                  | UserRole enum                                                        | typo-proof authorization       |
+| Entity returns password hash                 | @Exclude + ClassSerializerInterceptor                                | no credential leaks            |
+| Guarded register + open create-user backdoor | public patient register, ADMIN-only staff create, seeded first admin | consistent access model        |
+| roles.decrator.ts                            | roles.decorator.ts                                                   | spelling                       |
+| Stray aws-sdk auto-imports                   | none                                                                 | dead code                      |

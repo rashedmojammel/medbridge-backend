@@ -8,12 +8,12 @@ Rule of thumb: **pull → branch → code → push → PR**. If you remember tha
 
 ## 1. Team & Ownership
 
-| Member | Backend modules | Frontend areas | Branch prefix |
-|---|---|---|---|
-| Member 1 | auth, users, config, seeds | public pages, login/register, admin users | `feature/auth-*`, `feature/users-*` |
-| Member 2 | patients, triage | CHW pages | `feature/patients-*`, `feature/triage-*` |
-| Member 3 | consultations (chat gateway), prescriptions | doctor pages, chat UI | `feature/consult-*`, `feature/rx-*` |
-| Member 4 | medicines, appointments, notifications | pharmacist pages, appointments, notification panel | `feature/medicines-*`, `feature/appt-*`, `feature/notify-*` |
+| Member   | Backend modules                             | Frontend areas                                     | Branch prefix                                               |
+| -------- | ------------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------- |
+| Member 1 | auth, users, config, seeds                  | public pages, login/register, admin users          | `feature/auth-*`, `feature/users-*`                         |
+| Member 2 | patients, triage                            | CHW pages                                          | `feature/patients-*`, `feature/triage-*`                    |
+| Member 3 | consultations (chat gateway), prescriptions | doctor pages, chat UI                              | `feature/consult-*`, `feature/rx-*`                         |
+| Member 4 | medicines, appointments, notifications      | pharmacist pages, appointments, notification panel | `feature/medicines-*`, `feature/appt-*`, `feature/notify-*` |
 
 > Update the module split above to match MedBridge's actual domains once you've settled on them — the rest of this doc doesn't depend on the exact names.
 
@@ -24,6 +24,7 @@ You mostly work inside YOUR folders. Shared files (`app.module.ts`, `package.jso
 ## 2. One-Time Setup
 
 ### Repo owner (Rashed) does once:
+
 ```bash
 # repo already created: medbridge-backend (add teammates as collaborators)
 git clone https://github.com/rashedmojammel/medbridge-backend.git
@@ -39,10 +40,12 @@ git push origin dev
 ```
 
 Then on GitHub → **Settings → Branches → Add branch protection rule**:
+
 - Branch name pattern: `main` → ✔ Require a pull request before merging
 - Repeat for `dev` → ✔ Require a pull request, ✔ Require 1 approval
 
 ### Everyone does once:
+
 ```bash
 git clone https://github.com/rashedmojammel/medbridge-backend.git
 cd medbridge-backend
@@ -54,6 +57,7 @@ git config user.email "your-github-email"
 ```
 
 `.gitignore` must contain (never commit these):
+
 ```
 node_modules/
 dist/
@@ -115,15 +119,15 @@ After the PR is merged, delete the branch (GitHub offers a button) and start the
 
 Format: `type(module): short description` — present tense, lowercase.
 
-| Type | Use for | Example |
-|---|---|---|
-| feat | new feature | `feat(rx): add prescription create endpoint` |
-| fix | bug fix | `fix(auth): reject expired JWT` |
-| refactor | code change, no behavior change | `refactor(medicines): extract stock check` |
-| style | formatting only | `style: run prettier on triage module` |
-| docs | documentation | `docs: add API list to README` |
-| chore | setup, deps, config | `chore: add socket.io dependency` |
-| test | tests | `test(patients): MRN format spec` |
+| Type     | Use for                         | Example                                      |
+| -------- | ------------------------------- | -------------------------------------------- |
+| feat     | new feature                     | `feat(rx): add prescription create endpoint` |
+| fix      | bug fix                         | `fix(auth): reject expired JWT`              |
+| refactor | code change, no behavior change | `refactor(medicines): extract stock check`   |
+| style    | formatting only                 | `style: run prettier on triage module`       |
+| docs     | documentation                   | `docs: add API list to README`               |
+| chore    | setup, deps, config             | `chore: add socket.io dependency`            |
+| test     | tests                           | `test(patients): MRN format spec`            |
 
 ---
 
@@ -168,7 +172,9 @@ A conflict just means two people edited the same lines. It is normal, not an eme
 git merge dev
 # CONFLICT in src/app.module.ts
 ```
+
 Open the file — Git marks the disagreement:
+
 ```
 <<<<<<< HEAD
     TriageModule,
@@ -176,12 +182,16 @@ Open the file — Git marks the disagreement:
     MedicinesModule,
 >>>>>>> dev
 ```
+
 Fix by keeping what's correct (often BOTH):
+
 ```
     TriageModule,
     MedicinesModule,
 ```
+
 Delete the `<<<<<<<`, `=======`, `>>>>>>>` markers, then:
+
 ```bash
 git add .
 git commit -m "merge: resolve app.module conflict"
@@ -189,6 +199,7 @@ git push
 ```
 
 **Prevention beats cure:**
+
 - Pull dev daily (step 1 of the routine). Old branches = painful conflicts.
 - `app.module.ts` is the #1 conflict file (everyone registers modules there). When you add your module import, tell the chat.
 - Never edit another member's module files without asking — comment on their PR instead.
@@ -198,11 +209,11 @@ git push
 
 ## 9. Weekly Rhythm
 
-| Day | Activity |
-|---|---|
-| Sunday (or kickoff day) | 30-min sync: what shipped, what's next, any blockers, shared-file changes this week |
-| Daily | Pull dev before working. Push at least once per working day (nothing lives only on your laptop) |
-| End of week | All open PRs reviewed + merged; dev must run clean; milestone merge to main if planned |
+| Day                     | Activity                                                                                        |
+| ----------------------- | ----------------------------------------------------------------------------------------------- |
+| Sunday (or kickoff day) | 30-min sync: what shipped, what's next, any blockers, shared-file changes this week             |
+| Daily                   | Pull dev before working. Push at least once per working day (nothing lives only on your laptop) |
+| End of week             | All open PRs reviewed + merged; dev must run clean; milestone merge to main if planned          |
 
 Use **GitHub Issues + Projects board** (To Do / In Progress / In Review / Done). One issue per wireframe screen or endpoint group, assigned to its owner, linked in the PR with `Closes #12`. This doubles as evidence of teamwork for your instructor.
 
@@ -210,14 +221,14 @@ Use **GitHub Issues + Projects board** (To Do / In Progress / In Review / Done).
 
 ## 10. Emergency Commands (when things go wrong)
 
-| Situation | Command |
-|---|---|
-| Committed to dev by mistake (not pushed) | `git checkout -b feature/rescue` → your work is now on a branch; then `git checkout dev && git reset --hard origin/dev` |
-| Want to throw away local mess | `git checkout -- .` (unstaged) or `git reset --hard origin/<branch>` (everything) |
-| Committed .env or node_modules | `git rm -r --cached .env node_modules` → commit → verify .gitignore. If a real secret was pushed: CHANGE the secret (new JWT_SECRET / DB password) — deleting the file does not un-leak it |
-| Need teammate's unmerged branch | `git fetch origin && git checkout feature/their-branch` |
-| Merge went wrong mid-way | `git merge --abort` — back to before the merge |
-| "What just happened?" | `git log --oneline --graph --all` |
+| Situation                                | Command                                                                                                                                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Committed to dev by mistake (not pushed) | `git checkout -b feature/rescue` → your work is now on a branch; then `git checkout dev && git reset --hard origin/dev`                                                                    |
+| Want to throw away local mess            | `git checkout -- .` (unstaged) or `git reset --hard origin/<branch>` (everything)                                                                                                          |
+| Committed .env or node_modules           | `git rm -r --cached .env node_modules` → commit → verify .gitignore. If a real secret was pushed: CHANGE the secret (new JWT_SECRET / DB password) — deleting the file does not un-leak it |
+| Need teammate's unmerged branch          | `git fetch origin && git checkout feature/their-branch`                                                                                                                                    |
+| Merge went wrong mid-way                 | `git merge --abort` — back to before the merge                                                                                                                                             |
+| "What just happened?"                    | `git log --oneline --graph --all`                                                                                                                                                          |
 
 ---
 
