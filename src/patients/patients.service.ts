@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, EntityManager, Repository } from 'typeorm';
+import { DataSource, EntityManager, ILike, Like, Repository } from 'typeorm';
 import { UserRole } from '../auth/user-role.enum';
 import { Patients } from './patients.entity';
 import { CreatePatientDto } from './dtos/create-patient.dto';
