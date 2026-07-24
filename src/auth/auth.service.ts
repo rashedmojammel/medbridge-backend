@@ -1,5 +1,9 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from '@nestjs/common';
+
 import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -7,6 +11,7 @@ import { Users } from '../users/users.entity';
 import { RegisterPatientDto } from './dtos/register-patient.dto';
 import { LoginDto } from './dtos/login.dto';
 import { UserRole } from './user-role.enum';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
@@ -39,10 +44,12 @@ export class AuthService {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    if (!user.isActive) throw new UnauthorizedException('Account is deactivated');
+    if (!user.isActive)
+      throw new UnauthorizedException('Account is deactivated');
 
     const passwordMatches = await bcrypt.compare(dto.password, user.password);
-    if (!passwordMatches) throw new UnauthorizedException('Invalid credentials');
+    if (!passwordMatches)
+      throw new UnauthorizedException('Invalid credentials');
 
     return this.buildAuthResponse(user);
   }

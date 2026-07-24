@@ -33,7 +33,7 @@ export class CreateUserDto {
   @IsBoolean()
   isPublic?: boolean;
 
-  //  Doctor-only fields 
+  //  Doctor-only fields
   @IsOptional()
   @IsString()
   specialization?: string;
@@ -54,12 +54,12 @@ export class CreateUserDto {
   @IsString()
   bio?: string;
 
-  // CHW-only fields 
+  // CHW-only fields
   @IsOptional()
   @IsString()
   assignedArea?: string;
 
-  //  Staff-only fields 
+  //  Staff-only fields
   @IsOptional()
   @IsString()
   department?: string;

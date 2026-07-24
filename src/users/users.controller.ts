@@ -28,9 +28,11 @@ import { UserRole } from '../auth/user-role.enum';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-
   @Get('users/public/doctors')
-  publicDoctors(@Query('search') search?: string, @Query('specialization') spec?: string) {
+  publicDoctors(
+    @Query('search') search?: string,
+    @Query('specialization') spec?: string,
+  ) {
     return this.usersService.publicDoctors(search, spec);
   }
 
@@ -62,7 +64,8 @@ export class UsersController {
     @Query('page') page?: string,
   ) {
     const isActive = status === undefined ? undefined : status === 'active';
-    const publicFilter = isPublic === undefined ? undefined : isPublic === 'true';
+    const publicFilter =
+      isPublic === undefined ? undefined : isPublic === 'true';
     return this.usersService.findAll({
       role,
       isActive,
@@ -107,7 +110,10 @@ export class UsersController {
       }),
       fileFilter: (_req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|webp)$/)) {
-          return cb(new BadRequestException('Only image files are allowed'), false);
+          return cb(
+            new BadRequestException('Only image files are allowed'),
+            false,
+          );
         }
         cb(null, true);
       },

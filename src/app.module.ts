@@ -7,7 +7,7 @@ import { AppService } from './app.service';
 
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-
+import { PatientsModule } from './patients/patients.module';
 
 @Module({
   imports: [
@@ -21,15 +21,15 @@ import { UsersModule } from './users/users.module';
         username: config.get<string>('DATABASE_USER'),
         password: config.get<string>('DATABASE_PASSWORD'),
         database: config.get<string>('DATABASE_NAME'),
-        autoLoadEntities: true, 
-        synchronize: true, 
+        autoLoadEntities: true,
+        synchronize: true,
       }),
     }),
 
-    ScheduleModule.forRoot(), 
+    ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
-
+    PatientsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

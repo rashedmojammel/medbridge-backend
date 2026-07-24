@@ -8,7 +8,9 @@ async function bootstrap() {
   const password = process.env.ADMIN_PASSWORD;
 
   if (!email || !password) {
-    throw new Error('Set ADMIN_EMAIL and ADMIN_PASSWORD in .env before seeding an administrator.');
+    throw new Error(
+      'Set ADMIN_EMAIL and ADMIN_PASSWORD in .env before seeding an administrator.',
+    );
   }
 
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -18,7 +20,9 @@ async function bootstrap() {
 
     if (existing) {
       if (existing.role !== UserRole.ADMIN) {
-        throw new Error(`The email ${email} already belongs to a ${existing.role} account.`);
+        throw new Error(
+          `The email ${email} already belongs to a ${existing.role} account.`,
+        );
       }
       console.log(`Administrator ${email} already exists.`);
       return;

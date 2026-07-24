@@ -13,7 +13,6 @@ import { Doctors } from './doctors.entity';
 import { HealthWorkers } from './health-workers.entity';
 import { Staff } from './staff.entity';
 
-
 @Entity()
 export class Users {
   @PrimaryGeneratedColumn()
@@ -29,7 +28,7 @@ export class Users {
   phone: string;
 
   @Column()
-  @Exclude() 
+  @Exclude()
   password: string;
 
   @Column({ type: 'enum', enum: UserRole })
@@ -58,5 +57,4 @@ export class Users {
 
   @OneToOne(() => Staff, (staff) => staff.user)
   staffProfile: Staff;
-
 }

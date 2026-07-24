@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -133,7 +137,6 @@ export class UsersService {
     return this.usersRepo.save(user);
   }
 
-
   async publicDoctors(search?: string, specialization?: string) {
     const qb = this.doctorsRepo
       .createQueryBuilder('doctor')
@@ -143,7 +146,9 @@ export class UsersService {
 
     if (search) qb.andWhere('user.fullName ILIKE :s', { s: `%${search}%` });
     if (specialization)
-      qb.andWhere('doctor.specialization ILIKE :spec', { spec: `%${specialization}%` });
+      qb.andWhere('doctor.specialization ILIKE :spec', {
+        spec: `%${specialization}%`,
+      });
 
     const doctors = await qb.getMany();
     return doctors.map((d) => this.toPublicDoctor(d));
@@ -184,7 +189,8 @@ export class UsersService {
       .where('user.isPublic = true')
       .andWhere('user.isActive = true');
 
-    if (department) qb.andWhere('staff.department ILIKE :d', { d: `%${department}%` });
+    if (department)
+      qb.andWhere('staff.department ILIKE :d', { d: `%${department}%` });
 
     const staff = await qb.getMany();
     return staff.map((s) => ({
