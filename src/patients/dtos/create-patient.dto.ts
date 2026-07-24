@@ -17,20 +17,28 @@ export class CreatePatientDto {
   @IsIn(['MALE', 'FEMALE', 'OTHER'])
   gender: string;
 
-  @IsOptional() @IsString() bloodGroup?: string;
+  @IsOptional()
+  @IsString()
+  bloodGroup?: string;
 
   @IsString()
   @IsNotEmpty()
   phone: string;
 
-  @IsOptional() @IsString() altPhone?: string;
+  @IsOptional()
+  @IsString()
+  altPhone?: string;
 
   @IsString()
   @IsNotEmpty()
   address: string;
 
-  @IsOptional() @IsString() village?: string;
-  @IsOptional() @IsString() district?: string;
+  @IsOptional()
+  @IsString()
+  village?: string;
+  @IsOptional()
+  @IsString()
+  district?: string;
 
   @IsString()
   @IsNotEmpty()
