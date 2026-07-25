@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PatientsModule } from './patients/patients.module';
+import { TriageModule } from './triage/triage.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PatientsModule } from './patients/patients.module';
     AuthModule,
     UsersModule,
     PatientsModule,
+    TriageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
