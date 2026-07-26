@@ -1,16 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-
+import { NotificationsModule } from './notifications/notifications.module';
+import { PatientsModule } from './patients/patients.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { PatientsModule } from './patients/patients.module';
 import { TriageModule } from './triage/triage.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { MedicinesModule } from './medicines/medicines.module';
+import { ConsultationsModule } from './consultations/consultations.module';
 
 @Module({
   imports: [
@@ -19,23 +18,22 @@ import { MedicinesModule } from './medicines/medicines.module';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
-        host: config.get<string>('DATABASE_HOST'),
-        port: config.get<number>('DATABASE_PORT'),
-        username: config.get<string>('DATABASE_USER'),
-        password: config.get<string>('DATABASE_PASSWORD'),
-        database: config.get<string>('DATABASE_NAME'),
+        host: config.get('DATABASE_HOST', 'localhost'),
+        port: config.get<number>('DATABASE_PORT', 5432),
+        username: config.get('DATABASE_USER', 'postgres'),
+        password: config.get('DATABASE_PASSWORD'),
+        database: config.get('DATABASE_NAME', 'medbridge'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: true, // dev only - use migrations in production
       }),
     }),
-
     ScheduleModule.forRoot(),
+    NotificationsModule,
+    PatientsModule,
     AuthModule,
     UsersModule,
-    PatientsModule,
     TriageModule,
-    NotificationsModule,
-    MedicinesModule,
+    ConsultationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
