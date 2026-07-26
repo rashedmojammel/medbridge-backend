@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { PatientsModule } from './patients/patients.module';
 import { TriageModule } from './triage/triage.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { MedicinesModule } from './medicines/medicines.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     PatientsModule,
     TriageModule,
     NotificationsModule,
+    MedicinesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

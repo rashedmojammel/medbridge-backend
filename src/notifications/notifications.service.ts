@@ -9,7 +9,8 @@ import { MailService } from './mail.service';
 @Injectable()
 export class NotificationsService {
   constructor(
-    @InjectRepository(Notifications) private notifRepo: Repository<Notifications>,
+    @InjectRepository(Notifications)
+    private notifRepo: Repository<Notifications>,
     @InjectRepository(Users) private usersRepo: Repository<Users>,
     private mailService: MailService,
   ) {}
@@ -23,7 +24,9 @@ export class NotificationsService {
     manager?: EntityManager,
   ) {
     // 1. save in-app notification
-    const repo = manager ? manager.getRepository(Notifications) : this.notifRepo;
+    const repo = manager
+      ? manager.getRepository(Notifications)
+      : this.notifRepo;
     const notification = await repo.save(
       repo.create({
         user: { id: userId } as any,
@@ -59,7 +62,9 @@ export class NotificationsService {
     manager?: EntityManager,
   ) {
     const usersRepo = manager ? manager.getRepository(Users) : this.usersRepo;
-    const users = await usersRepo.find({ where: { role: role, isActive: true } });
+    const users = await usersRepo.find({
+      where: { role: role, isActive: true },
+    });
 
     for (const user of users) {
       await this.create(user.id, type, title, body, refId, manager);
