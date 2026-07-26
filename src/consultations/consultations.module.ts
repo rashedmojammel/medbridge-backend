@@ -27,4 +27,5 @@ import { ConsultationsService } from './consultations.service';
   providers: [ConsultationsService, ChatGateway],
   exports: [ConsultationsService],
 })
+
 export class ConsultationsModule {}

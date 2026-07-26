@@ -49,7 +49,7 @@ export class ConsultationsController {
   ) {
     return this.consultationsService.saveDiagnosis(id, req.user.id, dto);
   }
-
+ 
   /** #24 - locks the chat and tells connected clients */
   @Patch(':id/complete')
   @Roles(UserRole.DOCTOR)
