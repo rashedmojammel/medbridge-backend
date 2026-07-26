@@ -1,5 +1,10 @@
 import {
-  Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ConsultationStatus } from '../auth/user-role.enum';
 import { Patients } from '../patients/patients.entity';
@@ -26,15 +31,19 @@ export class Consultations {
   @Column({ nullable: true })
   reason: string;
 
-  @Column({ type: 'enum', enum: ConsultationStatus, default: ConsultationStatus.SCHEDULED })
+  @Column({
+    type: 'enum',
+    enum: ConsultationStatus,
+    default: ConsultationStatus.SCHEDULED,
+  })
   status: ConsultationStatus;
 
   @Column({ nullable: true })
   diagnosis: string;
- 
+
   @Column({ type: 'text', nullable: true })
   doctorNotes: string;
- 
+
   @Column({ type: 'timestamptz', nullable: true })
   completedAt: Date;
 

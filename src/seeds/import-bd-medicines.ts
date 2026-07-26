@@ -4,31 +4,32 @@ import { Medicines } from '../medicines/medicines.entity';
 import { MedicineInventory } from '../medicines/medicine-inventory.entity';
 import { MedicineAlternatives } from '../medicines/medicine-alternatives.entity';
 
-const BD_DRUG_URL = 'https://raw.githubusercontent.com/abartoha/drug-bd-api/refs/heads/defalt/brandfile.json';
+const BD_DRUG_URL =
+  'https://raw.githubusercontent.com/abartoha/drug-bd-api/refs/heads/defalt/brandfile.json';
 
 // clean up the form field - raw data has no spaces
 function cleanForm(raw: string): string {
   const map: Record<string, string> = {
-    'Tablet': 'TABLET',
+    Tablet: 'TABLET',
     'Tablet(SustainedRelease)': 'TABLET',
-    'Capsule': 'CAPSULE',
-    'Syrup': 'SYRUP',
-    'OralSuspension': 'SYRUP',
-    'Cream': 'CREAM',
-    'Gel': 'GEL',
-    'Injection': 'INJECTION',
-    'IVInjection': 'INJECTION',
-    'IVInfusion': 'INJECTION',
-    'IVInjectionorInfusion': 'INJECTION',
-    'IMInjection': 'INJECTION',
-    'SCInjection': 'INJECTION',
-    'OphthalmicOintment': 'OINTMENT',
-    'ChewableTablet': 'TABLET',
-    'EffervescentTablet': 'TABLET',
-    'OrallyDispersibleTablet': 'TABLET',
-    'NebuliserSolution': 'SYRUP',
-    'EffervescentGranules': 'GRANULES',
-    'DialysisSolution': 'SOLUTION',
+    Capsule: 'CAPSULE',
+    Syrup: 'SYRUP',
+    OralSuspension: 'SYRUP',
+    Cream: 'CREAM',
+    Gel: 'GEL',
+    Injection: 'INJECTION',
+    IVInjection: 'INJECTION',
+    IVInfusion: 'INJECTION',
+    IVInjectionorInfusion: 'INJECTION',
+    IMInjection: 'INJECTION',
+    SCInjection: 'INJECTION',
+    OphthalmicOintment: 'OINTMENT',
+    ChewableTablet: 'TABLET',
+    EffervescentTablet: 'TABLET',
+    OrallyDispersibleTablet: 'TABLET',
+    NebuliserSolution: 'SYRUP',
+    EffervescentGranules: 'GRANULES',
+    DialysisSolution: 'SOLUTION',
   };
   return map[raw] || 'OTHER';
 }
@@ -70,21 +71,25 @@ export async function importBdMedicines(dataSource: DataSource) {
       continue;
     }
 
-    const medicine = await medsRepo.save(medsRepo.create({
-      brandName: item.name,
-      genericName: item.drug,
-      manufacturer: item.companyName,
-      dosageForm: cleanForm(item.form),
-      strength: item.dose || 'N/A',
-      therapeuticClass: item.drug,
-      isAvailable: true,
-    }));
+    const medicine = await medsRepo.save(
+      medsRepo.create({
+        brandName: item.name,
+        genericName: item.drug,
+        manufacturer: item.companyName,
+        dosageForm: cleanForm(item.form),
+        strength: item.dose || 'N/A',
+        therapeuticClass: item.drug,
+        isAvailable: true,
+      }),
+    );
 
-    await invRepo.save(invRepo.create({
-      medicine: medicine,
-      stockQty: Math.floor(Math.random() * 200) + 10,
-      threshold: 20,
-    }));
+    await invRepo.save(
+      invRepo.create({
+        medicine: medicine,
+        stockQty: Math.floor(Math.random() * 200) + 10,
+        threshold: 20,
+      }),
+    );
 
     imported.set(key, medicine);
     importedCount++;
@@ -105,12 +110,18 @@ export async function importBdMedicines(dataSource: DataSource) {
     const limited = group.slice(0, 5);
     for (let i = 0; i < limited.length; i++) {
       for (let j = i + 1; j < limited.length; j++) {
-        await altRepo.save(altRepo.create({ medicine: limited[i], alternative: limited[j] }));
-        await altRepo.save(altRepo.create({ medicine: limited[j], alternative: limited[i] }));
+        await altRepo.save(
+          altRepo.create({ medicine: limited[i], alternative: limited[j] }),
+        );
+        await altRepo.save(
+          altRepo.create({ medicine: limited[j], alternative: limited[i] }),
+        );
         altCount++;
       }
     }
   }
 
-  console.log(`Import complete: ${importedCount} imported, ${skippedCount} skipped, ${altCount} alternative pairs linked`);
+  console.log(
+    `Import complete: ${importedCount} imported, ${skippedCount} skipped, ${altCount} alternative pairs linked`,
+  );
 }

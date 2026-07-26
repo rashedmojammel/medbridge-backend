@@ -1,6 +1,10 @@
 import { JwtService } from '@nestjs/jwt';
 import {
-  ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer,
+  ConnectedSocket,
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ConsultationsService } from './consultations.service';
@@ -26,7 +30,10 @@ export class ChatGateway {
       const token = client.handshake.auth?.token;
       const payload = this.jwtService.verify(token);
       client.data.user = {
-        id: payload.sub, email: payload.email, role: payload.role, name: payload.name,
+        id: payload.sub,
+        email: payload.email,
+        role: payload.role,
+        name: payload.name,
       };
     } catch {
       client.disconnect();
@@ -38,10 +45,15 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('joinRoom')
-  async joinRoom(@ConnectedSocket() client: Socket, @MessageBody() body: { consultationId: number }) {
+  async joinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { consultationId: number },
+  ) {
     const user = client.data.user;
     try {
-      const c = await this.consultationsService.getWithParticipants(body.consultationId);
+      const c = await this.consultationsService.getWithParticipants(
+        body.consultationId,
+      );
       this.consultationsService.assertParticipant(user.id, c);
     } catch (e) {
       client.emit('error', { message: e.message ?? 'Cannot join room' });
@@ -65,7 +77,9 @@ export class ChatGateway {
     }
     try {
       const saved = await this.consultationsService.addMessage(
-        user.id, body.consultationId, String(body.text).trim(),
+        user.id,
+        body.consultationId,
+        String(body.text).trim(),
       );
       this.server.to(this.room(body.consultationId)).emit('newMessage', {
         id: saved.id,
@@ -80,13 +94,20 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('typing')
-  typing(@ConnectedSocket() client: Socket, @MessageBody() body: { consultationId: number }) {
+  typing(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { consultationId: number },
+  ) {
     const user = client.data.user;
-    client.to(this.room(body.consultationId)).emit('typing', { userId: user.id, name: user.name });
+    client
+      .to(this.room(body.consultationId))
+      .emit('typing', { userId: user.id, name: user.name });
   }
 
   /** Called by the controller when the doctor completes the consultation */
   notifyEnded(consultationId: number) {
-    this.server.to(this.room(consultationId)).emit('consultationEnded', { consultationId });
+    this.server
+      .to(this.room(consultationId))
+      .emit('consultationEnded', { consultationId });
   }
 }
