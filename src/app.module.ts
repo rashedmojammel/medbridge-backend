@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TriageModule } from './triage/triage.module';
 import { ConsultationsModule } from './consultations/consultations.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ConsultationsModule } from './consultations/consultations.module';
     UsersModule,
     TriageModule,
     ConsultationsModule,
+    AppointmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -18,7 +18,10 @@ export class MailService {
         pass: config.get('MAIL_PASS'),
       },
     });
-    this.fromAddress = config.get('MAIL_FROM', 'Medbridge <noreply@medbridge.com>');
+    this.fromAddress = config.get(
+      'MAIL_FROM',
+      'Medbridge <noreply@medbridge.com>',
+    );
   }
 
   /** Send a styled email based on notification type */
@@ -50,10 +53,9 @@ export class MailService {
     title: string,
     body: string,
   ): { subject: string; html: string } {
-
     // each type gets its own emoji, color, and subject prefix
     let emoji = '🔔';
-    let color = '#2563eb';  // blue (default)
+    let color = '#2563eb'; // blue (default)
     let subjectPrefix = 'Notification';
     let actionText = '';
     let actionUrl = '';
@@ -61,7 +63,7 @@ export class MailService {
     switch (type) {
       case NotificationType.EMERGENCY_ALERT:
         emoji = '🚨';
-        color = '#dc2626';  // red
+        color = '#dc2626'; // red
         subjectPrefix = 'URGENT';
         actionText = 'View Patient Now';
         actionUrl = '/chw/dashboard';
@@ -69,7 +71,7 @@ export class MailService {
 
       case NotificationType.PRESCRIPTION_READY:
         emoji = '💊';
-        color = '#16a34a';  // green
+        color = '#16a34a'; // green
         subjectPrefix = 'Prescription Ready';
         actionText = 'View Prescription';
         actionUrl = '/patient/prescriptions';
@@ -77,7 +79,7 @@ export class MailService {
 
       case NotificationType.APPOINTMENT_REMINDER:
         emoji = '📅';
-        color = '#9333ea';  // purple
+        color = '#9333ea'; // purple
         subjectPrefix = 'Appointment Reminder';
         actionText = 'View Appointment';
         actionUrl = '/patient/appointments';
@@ -85,7 +87,7 @@ export class MailService {
 
       case NotificationType.LOW_STOCK:
         emoji = '⚠️';
-        color = '#ea580c';  // orange
+        color = '#ea580c'; // orange
         subjectPrefix = 'Low Stock Alert';
         actionText = 'Check Inventory';
         actionUrl = '/pharmacist/inventory';
@@ -93,7 +95,7 @@ export class MailService {
 
       case NotificationType.ASSIGNMENT:
         emoji = '📋';
-        color = '#2563eb';  // blue
+        color = '#2563eb'; // blue
         subjectPrefix = 'New Assignment';
         actionText = 'View Details';
         actionUrl = '/doctor/dashboard';
@@ -160,7 +162,9 @@ export class MailService {
           </tr>
 
           <!-- Action button -->
-          ${actionText ? `
+          ${
+            actionText
+              ? `
           <tr>
             <td align="center" style="padding: 8px 32px 24px 32px;">
               <a href="${frontendUrl}${actionUrl}"
@@ -169,7 +173,9 @@ export class MailService {
               </a>
             </td>
           </tr>
-          ` : ''}
+          `
+              : ''
+          }
 
           <!-- Timestamp -->
           <tr>

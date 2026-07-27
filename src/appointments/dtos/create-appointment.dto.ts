@@ -1,6 +1,6 @@
 import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 
-export class CreateConsultationDto {
+export class CreateAppointmentDto {
   @IsInt()
   patientId: number;
 
@@ -12,5 +12,5 @@ export class CreateConsultationDto {
 
   @IsOptional()
   @IsString()
-  reason?: string;
+  type?: string;
 }
