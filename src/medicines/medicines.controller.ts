@@ -24,7 +24,6 @@ import { UpdateStockDto } from './dtos/update-stock.dto';
 export class MedicinesController {
   constructor(private readonly medicinesService: MedicinesService) {}
 
-
   @Get('search')
   @Roles(
     UserRole.ADMIN,
@@ -80,12 +79,14 @@ export class MedicinesController {
     return this.medicinesService.updateStock(id, dto, req.user.id);
   }
 
+  /** blocked (400) if the medicine is already used in a prescription */
   @Delete(':id')
   @Roles(UserRole.ADMIN, UserRole.PHARMACIST)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.medicinesService.remove(id);
   }
 
+  /**unlinks an alternative pairing in BOTH directions */
   @Delete(':id/alternatives/:altId')
   @Roles(UserRole.ADMIN, UserRole.PHARMACIST)
   removeAlternative(
