@@ -8,11 +8,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/jwtGuard';
 import { NotificationsService } from './notifications.service';
 
 @Controller('notifications')
 @UseGuards(JwtGuard)
+@ApiTags('notifications')
+@ApiBearerAuth('access-token')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 

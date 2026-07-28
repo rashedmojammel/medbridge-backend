@@ -9,12 +9,27 @@ async function bootstrap() {
     .setTitle('Medbridge API')
     .setDescription('Rural Healthcare Consultation Platform (RHCP) backend')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Paste the access token returned by `POST /auth/login`.',
+      },
+      'access-token',
+    )
     .build();
   SwaggerModule.setup(
     'api/docs',
     app,
     SwaggerModule.createDocument(app, config),
+    {
+      swaggerOptions: {
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        filter: true,
+      },
+    },
   );
 
   await app.listen(process.env.PORT ?? 3000);

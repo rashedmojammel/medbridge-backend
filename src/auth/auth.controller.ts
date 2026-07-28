@@ -1,10 +1,12 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterPatientDto } from './dtos/register-patient.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dtos/login.dto';
 import { JwtGuard } from './jwtGuard';
 
 @Controller('auth')
+@ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
@@ -20,6 +22,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtGuard)
+  @ApiBearerAuth('access-token')
   me(@Req() req) {
     return req.user;
   }
