@@ -10,6 +10,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/jwtGuard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles/roles.guard';
@@ -21,6 +22,8 @@ import { SaveDiagnosisDto } from './dtos/save-diagnosis.dto';
 
 @Controller('consultations')
 @UseGuards(JwtGuard, RolesGuard)
+@ApiTags('consultations')
+@ApiBearerAuth('access-token')
 export class ConsultationsController {
   constructor(
     private readonly consultationsService: ConsultationsService,

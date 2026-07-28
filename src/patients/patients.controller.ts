@@ -11,6 +11,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/jwtGuard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles/roles.guard';
@@ -21,6 +22,8 @@ import { UpdatePatientDto } from './dtos/update-patient.dto';
 
 @Controller('patients')
 @UseGuards(JwtGuard, RolesGuard)
+@ApiTags('patients')
+@ApiBearerAuth('access-token')
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 

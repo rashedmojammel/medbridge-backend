@@ -23,8 +23,15 @@ import { JwtGuard } from '../auth/jwtGuard';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { UserRole } from '../auth/user-role.enum';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller()
+@ApiTags('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -56,6 +63,7 @@ export class UsersController {
   @Get('users')
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth('access-token')
   findAll(
     @Query('role') role?: UserRole,
     @Query('status') status?: string,
@@ -78,6 +86,7 @@ export class UsersController {
   @Get('users/:id')
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth('access-token')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findById(id);
   }
@@ -85,6 +94,7 @@ export class UsersController {
   @Post('users')
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth('access-token')
   create(@Body() dto: CreateUserDto) {
     return this.usersService.create(dto);
   }
@@ -92,6 +102,7 @@ export class UsersController {
   @Patch('users/:id')
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
+  @ApiBearerAuth('access-token')
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) {
     return this.usersService.update(id, dto);
   }
@@ -99,6 +110,17 @@ export class UsersController {
 
   @Post('users/:id/photo')
   @UseGuards(JwtGuard)
+  @ApiBearerAuth('access-token')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: {
+        file: { type: 'string', format: 'binary' },
+      },
+    },
+  })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
