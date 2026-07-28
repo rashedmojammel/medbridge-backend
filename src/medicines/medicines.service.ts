@@ -29,7 +29,6 @@ export class MedicinesService {
     private dataSource: DataSource,
   ) {}
 
-  /** case-insensitive search on brand OR generic name */
   async search(q: string) {
     if (!q) return [];
     return this.medsRepo
@@ -46,7 +45,6 @@ export class MedicinesService {
     return pairs.map((p) => p.alternative);
   }
 
-  /** FR-7.2 catalog create + initial inventory + symmetric alternatives, one transaction */
   async create(dto: CreateMedicineDto) {
     return this.dataSource.transaction(async (manager) => {
       const medicine = await manager.save(
