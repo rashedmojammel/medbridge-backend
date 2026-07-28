@@ -10,8 +10,8 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { TriageModule } from './triage/triage.module';
 import { ConsultationsModule } from './consultations/consultations.module';
-import { AppointmentsModule } from './appointments/appointments.module';
 import { MedicinesModule } from './medicines/medicines.module';
+import { PrescriptionsModule } from './prescriptions/prescriptions.module';
 
 @Module({
   imports: [
@@ -36,8 +36,8 @@ import { MedicinesModule } from './medicines/medicines.module';
     UsersModule,
     TriageModule,
     ConsultationsModule,
-    AppointmentsModule,
     MedicinesModule,
+    PrescriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
