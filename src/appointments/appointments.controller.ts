@@ -7,7 +7,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -35,7 +34,8 @@ export class AppointmentsController {
 
   @Get()
   @Roles(UserRole.DOCTOR, UserRole.PATIENT, UserRole.CHW, UserRole.ADMIN)
-  findAll(@Req() req: any, @Query('filter') filter?: 'upcoming' | 'past') {
+  findAll(@Req() req: any) {
+    const { filter } = req.query;
     return this.appointmentsService.findAllFor(req.user, filter);
   }
 

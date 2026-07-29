@@ -7,10 +7,10 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/jwtGuard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles/roles.guard';
@@ -21,6 +21,8 @@ import { UpdateStockDto } from './dtos/update-stock.dto';
 
 @Controller('medicines')
 @UseGuards(JwtGuard, RolesGuard)
+@ApiTags('medicines')
+@ApiBearerAuth('access-token')
 export class MedicinesController {
   constructor(private readonly medicinesService: MedicinesService) {}
 
@@ -32,7 +34,8 @@ export class MedicinesController {
     UserRole.PATIENT,
     UserRole.PHARMACIST,
   )
-  search(@Query('q') q: string) {
+  search(@Req() req: any) {
+    const { q } = req.query;
     return this.medicinesService.search(q);
   }
 

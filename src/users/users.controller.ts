@@ -5,7 +5,6 @@ import {
   Patch,
   Body,
   Param,
-  Query,
   Req,
   UseGuards,
   UseInterceptors,
@@ -36,10 +35,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get('users/public/doctors')
-  publicDoctors(
-    @Query('search') search?: string,
-    @Query('specialization') spec?: string,
-  ) {
+  publicDoctors(@Req() req: any) {
+    const { search, specialization: spec } = req.query;
     return this.usersService.publicDoctors(search, spec);
   }
 
@@ -49,12 +46,14 @@ export class UsersController {
   }
 
   @Get('users/public/chws')
-  publicChws(@Query('search') search?: string, @Query('area') area?: string) {
+  publicChws(@Req() req: any) {
+    const { search, area } = req.query;
     return this.usersService.publicChws(search, area);
   }
 
   @Get('users/public/staff')
-  publicStaff(@Query('department') department?: string) {
+  publicStaff(@Req() req: any) {
+    const { department } = req.query;
     return this.usersService.publicStaff(department);
   }
 
@@ -64,13 +63,8 @@ export class UsersController {
   @UseGuards(JwtGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @ApiBearerAuth('access-token')
-  findAll(
-    @Query('role') role?: UserRole,
-    @Query('status') status?: string,
-    @Query('isPublic') isPublic?: string,
-    @Query('search') search?: string,
-    @Query('page') page?: string,
-  ) {
+  findAll(@Req() req: any) {
+    const { role, status, isPublic, search, page } = req.query;
     const isActive = status === undefined ? undefined : status === 'active';
     const publicFilter =
       isPublic === undefined ? undefined : isPublic === 'true';

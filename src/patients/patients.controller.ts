@@ -7,7 +7,6 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -37,7 +36,8 @@ export class PatientsController {
   /** #14 */
   @Get()
   @Roles(UserRole.CHW, UserRole.DOCTOR, UserRole.ADMIN)
-  findAll(@Query('search') search?: string) {
+  findAll(@Req() req: any) {
+    const { search } = req.query;
     return this.patientsService.findAll(search);
   }
 
