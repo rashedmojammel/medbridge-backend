@@ -2,6 +2,7 @@ import {
   Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Req, UseGuards,
 } from '@nestjs/common';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/jwtGuard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles/roles.guard';
@@ -11,11 +12,14 @@ import { CreatePrescriptionDto } from './dtos/create-prescription.dto';
 import { CreateTreatmentPlanDto } from './dtos/create-treatment-plan.dto';
 
 class CancelPrescriptionDto {
+  @ApiProperty({ example: 'Medication is no longer appropriate for the patient.' })
   @IsString() @IsNotEmpty() reason: string;
 }
 
 @Controller()
 @UseGuards(JwtGuard, RolesGuard)
+@ApiTags('prescriptions')
+@ApiBearerAuth('access-token')
 export class PrescriptionsController {
   constructor(private readonly prescriptionsService: PrescriptionsService) {}
 

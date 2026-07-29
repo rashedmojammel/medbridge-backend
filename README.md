@@ -31,6 +31,10 @@
 $ npm install
 ```
 
+## Database setup
+
+Configure `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USER`, `DATABASE_PASSWORD`, and `DATABASE_NAME` for PostgreSQL. Schema synchronization is disabled by default to avoid concurrent TypeORM startup queries. Use migrations for normal environments. For a disposable local database only, set `DATABASE_SYNCHRONIZE=true` to let TypeORM create or update the schema.
+
 ## Compile and run the project
 
 ```bash

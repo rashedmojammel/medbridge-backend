@@ -4,7 +4,6 @@ import {
   Param,
   ParseIntPipe,
   Patch,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -21,7 +20,8 @@ export class NotificationsController {
 
   /** #40 */
   @Get()
-  list(@Req() req: any, @Query('unread') unread?: string) {
+  list(@Req() req: any) {
+    const { unread } = req.query;
     return this.notificationsService.listFor(req.user.id, unread === 'true');
   }
 

@@ -26,7 +26,7 @@ import { PrescriptionsModule } from './prescriptions/prescriptions.module';
         password: config.get('DATABASE_PASSWORD'),
         database: config.get('DATABASE_NAME', 'medbridge'),
         autoLoadEntities: true,
-        synchronize: true, // dev only - use migrations in production
+        synchronize: config.get('DATABASE_SYNCHRONIZE') === 'true',
       }),
     }),
     ScheduleModule.forRoot(),
